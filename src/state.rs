@@ -14,6 +14,7 @@ pub struct  Config {
 pub struct Event {
     pub event_id: u64,
     pub name: String,
+    pub category: String,
     pub start_time: Timestamp,
     pub end_time: Timestamp,
     pub resolved: bool,
@@ -44,6 +45,6 @@ pub const ALL_EVENTS: Item<Vec<Event>> = Item::new("all_events");
 pub const USER_BET: Map<(u64, &Addr), Bet> = Map::new("user_bet");
 
 // Map the user to list of rounds played]
-pub const  USER_ROUNDS: Map<&Addr, Vec<Event>> = Map::new("user_rounds");
+pub const  USER_ROUNDS: Map<&Addr, Vec<Bet>> = Map::new("user_rounds");
 
 // Create the leaderboard

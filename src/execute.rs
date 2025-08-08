@@ -2,7 +2,7 @@ use cosmwasm_std::{DepsMut, Env, MessageInfo, Response, Timestamp, Uint128};
 
 use crate::error::ContractError;
 use crate::msg::{Choice, ExecuteMsg, Single};
-use crate::state::{Bet, Config, Event, ALL_EVENTS, CONFIG, EVENT, USER_BET};
+use crate::state::{Bet, Config, Event, ALL_EVENTS, CONFIG, EVENT, USER_BET, USER_ROUNDS};
 
 pub fn execute(
     deps: DepsMut,
@@ -15,12 +15,13 @@ pub fn execute(
         // Admin functions
         ExecuteMsg::AddEvent {
              name, 
+             category,
              event_id, 
              options, 
              start_time,
              end_time 
         } => {
-            execute_add_event(deps, env, info, name, event_id, options, start_time, end_time)
+            execute_add_event(deps, env, info, name, event_id, category,options, start_time, end_time)
         },
 
         ExecuteMsg::StartEvent { event_id  } => {
@@ -58,6 +59,7 @@ fn execute_add_event(
     info: MessageInfo,
     name: String,
     event_id: u64,
+    category: String,
     options: Vec<Single>,
     start_time: Timestamp,
     end_time: Timestamp
@@ -72,7 +74,8 @@ fn execute_add_event(
     // The event 
     let event: Event = Event { 
         event_id: event_id, 
-        name: name.clone(), 
+        name: name.clone(),
+        category: category.clone(), 
         start_time: start_time, 
         end_time: end_time, 
         resolved: false, 
@@ -276,7 +279,7 @@ fn execute_place_bet (
     USER_BET.save(deps.storage, (event_id, &info.sender), &user_bet)?;
     
     // Update the event details
-    event.participants.push(info.sender);
+    event.participants.push(info.sender.clone());
     event.total_pool += bet_amount;
 
     event.options[option as usize].total_pool += bet_amount;
@@ -290,6 +293,15 @@ fn execute_place_bet (
     }
 
     EVENT.save(deps.storage, event_id, &event)?;
+
+    // Add the bet to the user bet history
+    if USER_ROUNDS.may_load(deps.storage, &info.sender)?.is_none() {
+        let mut new = USER_ROUNDS.load(deps.storage, &info.sender)?;
+        new.push(user_bet);
+    } else {
+        let mut new = USER_ROUNDS.load(deps.storage, &info.sender)?;
+        new.push(user_bet);
+    }
 
     Ok(Response::new()
         .add_attribute("action", "place_bet")

@@ -1,5 +1,7 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{ Addr, Timestamp, Uint128};
+use cosmwasm_std::{ Addr, Event, Timestamp, Uint128};
+
+use crate::state::Bet;
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -15,6 +17,7 @@ pub enum ExecuteMsg {
     AddEvent {
         name: String,
         event_id: u64,
+        category: String,
         options: Vec<Single>,
         start_time: Timestamp,
         end_time: Timestamp
@@ -32,6 +35,17 @@ pub enum ExecuteMsg {
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(Event)]
+    GetEventDetails { event_id: u64 },
+
+    #[returns(Vec<Event>)]
+    GetAllEventDetails {},
+
+    #[returns(Bet)]
+    GetBetDetails { user: String, event_id: u64},
+
+    #[returns(Vec<Bet>)]
+    GetAllUserBetDetails { user: String }
 
 }
 
