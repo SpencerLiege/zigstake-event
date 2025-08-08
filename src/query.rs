@@ -1,4 +1,4 @@
-use cosmwasm_std::{to_json_binary, Addr, Binary, Deps, Env, StdResult, StdError};
+use cosmwasm_std::{to_json_binary, Binary, Deps, Env, StdResult, StdError};
 
 use crate::state::{ ALL_EVENTS, EVENT, Event, Bet, USER_ROUNDS, USER_BET};
 use crate::msg::{QueryMsg};
